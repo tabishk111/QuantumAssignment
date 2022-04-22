@@ -1,5 +1,6 @@
 package com.example.quantumassignment
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -19,6 +20,7 @@ import com.example.quantumassignment.ui.NewsViewModel
 import com.example.quantumassignment.ui.NewsViewModelProviderFactory
 import com.example.quantumassignment.util.Constants
 import com.example.quantumassignment.util.Resource
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -29,12 +31,16 @@ class ProfileActivity: AppCompatActivity() {
     private lateinit var binding: ActivityProfileBinding
     lateinit var viewModel: NewsViewModel
     lateinit var newsAdapter: NewsAdapter
+    private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var actionBar: ActionBar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Log.e("Profile","onCreate")
+
+        firebaseAuth = FirebaseAuth.getInstance()
+        checkUser()
 
         actionBar = supportActionBar!!
         actionBar.title = "News"
@@ -64,6 +70,11 @@ class ProfileActivity: AppCompatActivity() {
             }
         })
 
+        binding.logoutBtn.setOnClickListener {
+            firebaseAuth.signOut()
+            checkUser()
+        }
+
     }
 
     private fun setUpRecyclerView(){
@@ -72,6 +83,18 @@ class ProfileActivity: AppCompatActivity() {
             adapter = newsAdapter
             layoutManager = LinearLayoutManager(this.context)
         }
+    }
+
+    private fun checkUser() {
+        val user = firebaseAuth.currentUser
+        if(user!=null){
+            val email = user.email
+        }
+        else{
+            startActivity(Intent(this,MainActivity::class.java))
+            finish()
+        }
+
     }
 
 }
